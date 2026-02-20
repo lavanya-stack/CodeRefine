@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CodeRefine - Results</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-900 min-h-screen p-8">
+  <div class="max-w-4xl mx-auto bg-white p-8 rounded shadow">
+    <h1 class="text-3xl font-bold mb-6">Analysis Results</h1>
+
+    <div id="results" class="space-y-4"></div>
+
+    <button onclick="goBack()" class="mt-6 bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700">Go Back</button>
+  </div>
+
+  <script>
+    // Fetch results from localStorage
+    const data = JSON.parse(localStorage.getItem("codeRefineResults"));
+    const container = document.getElementById("results");
+
+    if (data) {
+      container.innerHTML = `
+        <h2 class="text-xl font-bold">Score: ${data.score}/100</h2>
+        <h3 class="text-lg font-semibold mt-2">Issues:</h3>
+        <ul class="list-disc pl-6">
+          ${data.issues.map(issue => `<li class="text-red-600">${issue}</li>`).join('')}
+        </ul>
+        <h3 class="text-lg font-semibold mt-2">Refactored Code:</h3>
+        <pre class="bg-gray-800 text-white p-4 rounded overflow-x-auto">${data.refactored_code}</pre>
+      `;
+    } else {
+      container.innerHTML = `<p class="text-red-600">No results found.</p>`;
+    }
+
+    function goBack() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

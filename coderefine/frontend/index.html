@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" class="transition-colors duration-500">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeRefine</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <!-- Canvas Confetti Library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body class="bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 dark:bg-gradient-to-r dark:from-gray-800 dark:via-gray-900 dark:to-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-500 min-h-screen">
+
+  <div class="container mx-auto p-6">
+
+    <!-- Header & Dark/Light Toggle -->
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-4xl font-bold">CodeRefine</h1>
+      <button id="theme-toggle" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
+        Toggle Dark/Light
+      </button>
+    </div>
+
+    <!-- Code Input -->
+    <label for="code-input" class="block text-lg font-semibold mb-2">Paste your code or upload a file:</label>
+    <textarea id="code-input" rows="12" placeholder="Paste your Python code here..." 
+      class="w-full p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 transition-colors duration-300"></textarea>
+
+    <!-- File Upload -->
+    <input type="file" id="file-input" class="mt-4 block mb-4" accept=".py,.pdf">
+
+    <!-- Analyze Button -->
+    <button id="analyze-btn" class="w-full md:w-auto mt-2 px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600 transition">
+      Analyze
+    </button>
+
+    <!-- Results Box -->
+    <div id="results" class="mt-6 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg transition-colors duration-300">
+      <h2 class="text-2xl font-semibold mb-4">Analysis Results</h2>
+      <!-- Score -->
+      <div id="score" class="mb-2 text-lg font-medium"></div>
+      <!-- Issues in red -->
+      <div id="issues" class="mb-4 text-red-600 dark:text-red-400 font-medium"></div>
+      <!-- Refined Code Heading -->
+      <h3 class="text-xl font-semibold mb-2">Refined Code</h3>
+      <pre id="refactored-code" class="bg-gray-100 dark:bg-gray-900 p-4 rounded overflow-x-auto text-sm"></pre>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Dark/Light toggle
+    const toggleBtn = document.getElementById('theme-toggle');
+    toggleBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // Analyze code / file
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const codeInput = document.getElementById('code-input');
+    const fileInput = document.getElementById('file-input');
+    const scoreEl = document.getElementById('score');
+    const issuesEl = document.getElementById('issues');
+    const refactoredEl = document.getElementById('refactored-code');
+
+    analyzeBtn.addEventListener('click', async () => {
+      let formData = new FormData();
+      const codeText = codeInput.value.trim();
+      if (codeText) formData.append('code', codeText);
+      if (fileInput.files[0]) formData.append('file', fileInput.files[0]);
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/analyze', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        scoreEl.textContent = `Score: ${data.score}/100`;
+        issuesEl.innerHTML = data.issues.length ? `<strong>Issues:</strong><br>${data.issues.join('<br>')}` : '<strong>No issues found!</strong>';
+        refactoredEl.textContent = data.refactored_code || '';
+
+        // Celebrate if score is 100
+        if (data.score === 100) {
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+        }
+
+      } catch (error) {
+        scoreEl.textContent = '';
+        issuesEl.textContent = 'Error connecting to backend. Make sure the FastAPI server is running.';
+        refactoredEl.textContent = '';
+      }
+    });
+  </script>
+
+</body>
+</html>
