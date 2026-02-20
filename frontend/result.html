@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>CodeRefine - Results</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-900 min-h-screen p-8">
   <div class="max-w-4xl mx-auto bg-white p-8 rounded shadow">
@@ -29,12 +31,42 @@
         <h3 class="text-lg font-semibold mt-2">Refactored Code:</h3>
         <pre class="bg-gray-800 text-white p-4 rounded overflow-x-auto">${data.refactored_code}</pre>
       `;
+
+      // 🎉 Trigger confetti if score is 100
+      if (data.score === 100) {
+        launchConfetti();
+      }
     } else {
       container.innerHTML = `<p class="text-red-600">No results found.</p>`;
     }
 
     function goBack() {
       window.location.href = "index.html";
+    }
+
+    // Confetti animation
+    function launchConfetti() {
+      const duration = 3 * 1000; // 3 seconds
+      const end = Date.now() + duration;
+
+      (function frame() {
+        confetti({
+          particleCount: 5,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 }
+        });
+        confetti({
+          particleCount: 5,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 }
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      }());
     }
   </script>
 </body>
