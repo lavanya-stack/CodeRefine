@@ -13,7 +13,6 @@ def calculate_score(actual_issues):
     # Deduct 10 points per real issue, minimum 50
     return max(100 - len(actual_issues) * 10, 50)
 
-
 def check_modularity(code):
     """
     Check for long functions (>50 lines) and return warnings.
